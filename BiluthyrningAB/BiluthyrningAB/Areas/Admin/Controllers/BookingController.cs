@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BiluthyrningAB.Data;
+using BiluthyrningAB.Models;
 using BiluthyrningAB.Models.ViewModels;
+using BiluthyrningAB.Persistence.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,20 +15,44 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
     [Area("Admin")]
     public class BookingController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IBookingRepository _bookingRepository;
+        private readonly ICarRepository _carRepository;
+        private readonly ICustomerRepository _customerRepository;
+        private readonly IEntityFrameworkRepository _entityFrameworkRepository;
 
-        public BookingController(ApplicationDbContext db)
+
+
+        public BookingController(IBookingRepository bookingRepository, ICarRepository carRepository, IEntityFrameworkRepository entityFrameworkRepository, ICustomerRepository customerRepository)
         {
-            _db = db;
+            _bookingRepository = bookingRepository;
+            _carRepository = carRepository;
+            _customerRepository = customerRepository;
+            _entityFrameworkRepository = entityFrameworkRepository;
         }
 
-        //GET
         public async Task<IActionResult> Index()
         {
+            var myTask = Task.Run(() => _bookingRepository.GetAllBookings());
+            return View(await myTask);
+        }
+        public async Task<IActionResult> BookingsForCertainCustomer(Guid? CustomerId)
+        {
+            var myTask = Task.Run(() => _bookingRepository.GetBookingsForCertainCustomer(CustomerId));
+            return View(await myTask);
+        }
 
-            var bookings = await _db.Booking.Include(m => m.Customer).Include(m => m.Car).ToListAsync();
 
-            return View(bookings);
+        public async Task<IActionResult> ActiveBookings()
+        {
+            var myTask = Task.Run(() => _bookingRepository.GetBookingsDependingOnStatus(true));
+            return View(await myTask);
+        }
+
+
+        public async Task<IActionResult> FinishedBookings()
+        {
+            var myTask = Task.Run(() => _bookingRepository.GetBookingsDependingOnStatus(false));
+            return View(await myTask);
         }
 
         //GET - CREATE
@@ -35,13 +61,98 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
 
             BookingViewModel bookingVM = new BookingViewModel();
 
-            bookingVM.Car = _db.Car.Select(c => new SelectListItem()
-            { Text = c.RegNr, Value = c.Id.ToString() });
-            bookingVM.Customer = _db.Customer.Select(c => new SelectListItem()
-            { Text = c.FirstName + " " + c.LastName, Value = c.Id.ToString() });
-            
+            bookingVM.Car = FillCarListOfSelectListItems();
+
+            bookingVM.Customer = FillCustomerListOfSelectListItems();
 
             return View(bookingVM);
+        }
+
+        public List<SelectListItem> FillCustomerListOfSelectListItems()
+        {
+            var customers = _customerRepository.GetAllCustomers();
+
+            List<SelectListItem> listOfCustomers = new List<SelectListItem>();
+
+            foreach (var customer in customers)
+            {
+                string wholeName = $"{customer.FirstName} {customer.LastName}";
+                var x = new SelectListItem() { Text = wholeName, Value = customer.Id.ToString() };
+                listOfCustomers.Add(x);
+            }
+            return listOfCustomers;
+        }
+
+
+        public List<SelectListItem> FillCarListOfSelectListItems()
+        {
+            var cars = _carRepository.GetAllCars();
+
+            List<SelectListItem> listOfCars = new List<SelectListItem>();
+
+            foreach (var car in cars)
+            {
+                var y = new SelectListItem() { Text = car.RegNr, Value = car.Id.ToString(), Group = new SelectListGroup { Name = car.CarSize.ToString() } };
+                listOfCars.Add(y);
+            }
+
+            return listOfCars;
+        }
+
+        [HttpPost, ActionName("Create")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreatePOST([Bind("BookingId,CustomerId,CarId,StartDate")] Booking booking)
+        {
+            booking.BookingTime = booking.BookingTime.AddDays(1);
+            booking.IsActive = true;
+
+            booking.Car = _carRepository.GetCarById(booking.CarId);
+
+            if (booking.Car.Available == false)
+            {
+                booking.Car.Available = true;
+            }
+            else
+            {
+                ViewBag.Message = "Bilen är redan bokad, vänligen välj en annan";
+                BookingViewModel error_bookingVm = new BookingViewModel();
+                error_bookingVm.Car = FillCarListOfSelectListItems();
+                error_bookingVm.Customer = FillCustomerListOfSelectListItems();
+                return View(error_bookingVm);
+            }
+
+            if (ModelState.IsValid)
+            {
+                booking.Id = Guid.NewGuid();
+                _bookingRepository.AddBooking(booking);
+
+                _carRepository.UpdateCar(booking.Car);
+
+                _entityFrameworkRepository.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            BookingViewModel bookingVM = new BookingViewModel();
+
+            bookingVM.Car = FillCarListOfSelectListItems();
+
+            bookingVM.Customer = FillCustomerListOfSelectListItems();
+
+            return View(bookingVM);
+        }
+
+
+        public async Task<IActionResult> FinishBooking(Guid? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var booking = _bookingRepository.GetBookingById(id);
+
+            if (booking == null)
+                return NotFound();
+
+            return View(booking);
         }
 
     }

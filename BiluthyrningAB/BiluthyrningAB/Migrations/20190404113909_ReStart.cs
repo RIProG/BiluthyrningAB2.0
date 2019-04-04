@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BiluthyrningAB.Migrations
 {
-    public partial class Restart : Migration
+    public partial class ReStart : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -51,8 +51,7 @@ namespace BiluthyrningAB.Migrations
                 name: "Car",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Id = table.Column<Guid>(nullable: false),
                     CarSize = table.Column<int>(nullable: false),
                     RegNr = table.Column<string>(nullable: false),
                     DistanceInKm = table.Column<decimal>(nullable: false),
@@ -67,9 +66,10 @@ namespace BiluthyrningAB.Migrations
                 name: "Customer",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    SocialSecurityNumber = table.Column<string>(nullable: false)
+                    Id = table.Column<Guid>(nullable: false),
+                    SocialSecurityNumber = table.Column<string>(nullable: false),
+                    FirstName = table.Column<string>(nullable: false),
+                    LastName = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -186,10 +186,9 @@ namespace BiluthyrningAB.Migrations
                 name: "Booking",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    CustomerId = table.Column<int>(nullable: false),
-                    CarId = table.Column<int>(nullable: false),
+                    Id = table.Column<Guid>(nullable: false),
+                    CustomerId = table.Column<Guid>(nullable: false),
+                    CarId = table.Column<Guid>(nullable: false),
                     BookingTime = table.Column<DateTime>(nullable: false),
                     ReturnTime = table.Column<DateTime>(nullable: false),
                     NumberOfKm = table.Column<decimal>(nullable: false),

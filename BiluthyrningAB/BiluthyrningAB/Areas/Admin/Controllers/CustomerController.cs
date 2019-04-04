@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BiluthyrningAB.Data;
 using BiluthyrningAB.Models;
+using BiluthyrningAB.Persistence.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,124 +13,126 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
     [Area("Admin")]
     public class CustomerController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly ICustomerRepository _customerRepository;
+        private readonly IEntityFrameworkRepository _entityFrameworkRepository;
 
-        public CustomerController(ApplicationDbContext db)
+        public CustomerController(ICustomerRepository customerRepository, IEntityFrameworkRepository entityFrameworkRepository)
         {
-            _db = db;
+            _customerRepository = customerRepository;
+            _entityFrameworkRepository = entityFrameworkRepository;
         }
 
-        //GET
         public async Task<IActionResult> Index()
         {
-            return View(await _db.Customer.ToListAsync());
+            var myTask = Task.Run(() => _customerRepository.GetAllCustomers());
+            return View(await myTask);
         }
 
-        //GET - CREATE
         public IActionResult Create()
         {
             return View();
         }
 
-        //POST - CREATE
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Customer customer)
+        public async Task<IActionResult> Create([Bind("Id,SocialSecurityNumber,FirstName,LastName")] Customer customer)
         {
             if (ModelState.IsValid)
             {
-                _db.Customer.Add(customer);
-                await _db.SaveChangesAsync();
+                customer.Id = Guid.NewGuid();
+                _customerRepository.AddCustomer(customer);
 
+                _entityFrameworkRepository.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
             return View(customer);
         }
 
         //GET - EDIT
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var customer = await _db.Customer.FindAsync(id);
+            var customer = _customerRepository.GetCustomerById(id);
 
             if (customer == null)
-            {
                 return NotFound();
-            }
 
             return View(customer);
         }
 
-        //POST - EDIT
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Customer customer)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,SocialSecurityNumber,FirstName,LastName")] Customer customer)
         {
+            if (id != customer.Id)
+                return NotFound();
+
             if (ModelState.IsValid)
             {
-                _db.Update(customer);
-                await _db.SaveChangesAsync();
+                try
+                {
+                    _customerRepository.UpdateCustomer(customer);
+
+                    _entityFrameworkRepository.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CustomerExists(customer.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
             return View(customer);
-
         }
 
-        //GET - DELETE
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var customer = await _db.Customer.FindAsync(id);
+            var customer = _customerRepository.GetCustomerById(id);
 
             if (customer == null)
-            {
                 return NotFound();
-            }
 
             return View(customer);
         }
 
-        //POST - Kan inte ha samma namn som GET-metoden, båda actionsen tar in en int (skulle dock funka i detta fallet eftersom den ena är nullable). 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var customer = await _db.Customer.FindAsync(id);
+            var customer = _customerRepository.GetCustomerById(id);
+            _customerRepository.RemoveCustomer(customer);
 
-            if (customer == null)
-            {
-                return NotFound();
-            }
-            _db.Customer.Remove(customer);
-            await _db.SaveChangesAsync();
+            _entityFrameworkRepository.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        //GET - DETAILS
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var customer = await _db.Customer.FindAsync(id);
+            var customer = _customerRepository.GetCustomerById(id);
 
             if (customer == null)
-            {
                 return NotFound();
-            }
 
             return View(customer);
+        }
+
+        private bool CustomerExists(Guid id)
+        {
+            return _customerRepository.CustomerExists(id);
         }
     }
 }

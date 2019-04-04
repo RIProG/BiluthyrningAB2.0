@@ -10,28 +10,27 @@ namespace BiluthyrningAB.Models
 {
     public class Booking
     {
-        [Key]
-        public int Id { get; set; }
+        //[Key]
+        public Guid Id { get; set; }
 
         [Required]
         [Display(Name = "Kund")]
-        public int CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
 
-        [ForeignKey("CustomerId")]
+        //[ForeignKey("CustomerId")]
         public virtual Customer Customer { get; set; }
 
         [Required]
         [Display(Name = "Bil")]
-        public int CarId { get; set; }
+        public Guid CarId { get; set; }
 
-        [ForeignKey("CarId")]
+        //[ForeignKey("CarId")]
         public virtual Car Car { get; set; }
 
         [Required]
         [Display(Name = "Bokningens Starttid")]
         public DateTime BookingTime { get; set; }
 
-        [Required]
         [Display(Name = "Bokningens Sluttid")]
         public DateTime ReturnTime { get; set; }
 

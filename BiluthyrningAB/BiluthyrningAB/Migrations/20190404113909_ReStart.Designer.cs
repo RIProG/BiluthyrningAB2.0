@@ -4,14 +4,16 @@ using BiluthyrningAB.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BiluthyrningAB.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(AppDbContext))]
+    [Migration("20190404113909_ReStart")]
+    partial class ReStart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,15 +23,14 @@ namespace BiluthyrningAB.Migrations
 
             modelBuilder.Entity("BiluthyrningAB.Models.Booking", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<DateTime>("BookingTime");
 
-                    b.Property<int>("CarId");
+                    b.Property<Guid>("CarId");
 
-                    b.Property<int>("CustomerId");
+                    b.Property<Guid>("CustomerId");
 
                     b.Property<bool>("IsActive");
 
@@ -48,9 +49,8 @@ namespace BiluthyrningAB.Migrations
 
             modelBuilder.Entity("BiluthyrningAB.Models.Car", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<bool>("Available");
 
@@ -68,9 +68,8 @@ namespace BiluthyrningAB.Migrations
 
             modelBuilder.Entity("BiluthyrningAB.Models.Customer", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("FirstName")
                         .IsRequired();

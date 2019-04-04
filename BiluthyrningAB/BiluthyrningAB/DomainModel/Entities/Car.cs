@@ -9,8 +9,8 @@ namespace BiluthyrningAB.Models
 {
     public class Car
     {
-        [Key]
-        public int Id { get; set; }
+        //[Key]
+        public Guid Id { get; set; }
 
         [Display(Name = "Bilstorlek")]
         [Required]
@@ -33,8 +33,8 @@ namespace BiluthyrningAB.Models
     }
 
     public enum CarSize {
-        Liten = 0,
-        Van = 1,
-        Minibuss = 2
+        Liten,
+        Van,
+        Minibuss
     }
 }

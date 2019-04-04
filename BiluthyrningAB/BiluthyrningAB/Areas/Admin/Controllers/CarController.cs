@@ -4,7 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using BiluthyrningAB.Data;
 using BiluthyrningAB.Models;
+using BiluthyrningAB.Persistence.Repositories;
+using BiluthyrningAB.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace BiluthyrningAB.Areas.Admin.Controllers
@@ -12,122 +15,167 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
     [Area("Admin")]
     public class CarController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly ICarRepository _carRepository;
+        private readonly IEntityFrameworkRepository _entityFrameworkRepository;
 
-        public CarController(ApplicationDbContext db)
+        public CarController(ICarRepository carRepository, IEntityFrameworkRepository entityFrameworkRepository)
         {
-            _db = db;
+            _carRepository = carRepository;
+            _entityFrameworkRepository = entityFrameworkRepository;
         }
 
-        //GET
         public async Task<IActionResult> Index()
         {
-            return View(await _db.Car.ToListAsync());
+            var myTask = Task.Run(() => _carRepository.GetAllCars());
+            return View(await myTask);
         }
 
-        //GET - CREATE
+        public async Task<IActionResult> CarsAvailable()
+        {
+            var myTask = Task.Run(() => _carRepository.GetCarsDependingOnBookingStatus(false));
+            return View(await myTask);
+        }
+
+
+        public async Task<IActionResult> CarsBooked()
+        {
+            var myTask = Task.Run(() => _carRepository.GetCarsDependingOnBookingStatus(true));
+            return View(await myTask);
+        }
+
+
         public IActionResult Create()
         {
             return View();
         }
 
-        //POST - CREATE
+        private List<SelectListItem> GetCarSizesToSelectList()
+        {
+            string[] arr = Enum.GetNames(typeof(CarSize));
+            List<SelectListItem> list = new List<SelectListItem>();
+
+            foreach (var item in arr)
+            {
+                var y = new SelectListItem() { Text = item, Value = item };
+                list.Add(y);
+            }
+
+            return list;
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Car car)
+        public async Task<IActionResult> Create([Bind("Id,RegNr,CarSize,DistanceInKm")] Car car)
         {
             if (ModelState.IsValid)
             {
-                _db.Car.Add(car);
-                await _db.SaveChangesAsync();
+                car.Id = Guid.NewGuid();
+                _carRepository.AddCar(car);
 
+                //_entityFrameworkRepository.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
             return View(car);
         }
 
         //GET - EDIT
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var car = await _db.Car.FindAsync(id);
+            var car = _carRepository.GetCarById(id);
 
             if (car == null)
-            {
                 return NotFound();
-            }
 
-            return View(car);
+            CarViewModel carSizeVM = new CarViewModel()
+            {
+            CarSize = GetCarSizesToSelectList(),
+            Car = car
+            };
+
+
+            return View(carSizeVM);
         }
 
         //POST - EDIT
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Car car)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,RegNr,CarSize,DistanceInKm")] Car car)
         {
+            if (id != car.Id)
+                return NotFound();
+
             if (ModelState.IsValid)
             {
-                _db.Update(car);
-                await _db.SaveChangesAsync();
+                try
+                {
+                    _carRepository.UpdateCar(car);
+                    _entityFrameworkRepository.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CarExists(car.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            return View(car);
+
+            CarViewModel carSizeVM = new CarViewModel();
+
+            carSizeVM.CarSize = GetCarSizesToSelectList();
+            carSizeVM.Car = car;
+
+            return View(carSizeVM);
 
         }
 
-        //GET - DELETE
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var car = await _db.Car.FindAsync(id);
+            var car = _carRepository.GetCarById(id);
 
             if (car == null)
-            {
                 return NotFound();
-            }
 
             return View(car);
         }
 
-        //POST - Kan inte ha samma namn som GET-metoden, båda actionsen tar in en int (skulle dock funka i detta fallet eftersom den ena är nullable). 
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var car = await _db.Car.FindAsync(id);
-
-            if (car == null)
-            {
-                return NotFound();
-            }
-            _db.Car.Remove(car);
-            await _db.SaveChangesAsync();
+            var car = _carRepository.GetCarById(id);
+            _carRepository.RemoveCar(car);
+            _entityFrameworkRepository.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        //GET - DETAILS
-        public async Task<IActionResult> Details(int? id)
+
+        private bool CarExists(Guid id)
+        {
+            return _carRepository.CarExists(id);
+        }
+
+        public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var car = await _db.Car.FindAsync(id);
+            var car = _carRepository.GetCarById(id);
 
             if (car == null)
-            {
                 return NotFound();
-            }
 
             return View(car);
         }

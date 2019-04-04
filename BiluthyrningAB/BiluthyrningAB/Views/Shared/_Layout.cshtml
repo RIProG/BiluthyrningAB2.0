@@ -35,8 +35,15 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <partial name="_LoginPartial" />
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item text-white-50">
-                            <a class="nav-link" asp-area="Admin" asp-controller="Car" asp-action="Index">Hantera Bilar</a>
+                        <li class="nav-item dropdown text-white-50">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropDownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Hantera Bilar
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropDownMenuLink">
+                                <a class="dropdown-item" asp-action="Index" asp-controller="Car" asp-area="Admin">Alla våra bilar</a>
+                                <a class="dropdown-item" asp-action="CarsAvailable" asp-controller="Car" asp-area="Admin">Tillgängliga bilar</a>
+                                <a class="dropdown-item" asp-action="CarsBooked" asp-controller="Car" asp-area="Admin">Bokade bilar</a>
+                            </div>
                         </li>
                         <li class="nav-item dropdown text-white-50">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropDownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -49,7 +56,7 @@
                             </div>
                         </li>
                         <li class="nav-item text-white-50">
-                                <a class="nav-link" asp-action="Index" asp-controller="Customer" asp-area="Admin">Kundregister</a>
+                            <a class="nav-link" asp-action="Index" asp-controller="Customer" asp-area="Admin">Kundregister</a>
                         </li>
                     </ul>
                 </div>
