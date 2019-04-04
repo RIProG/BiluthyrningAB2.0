@@ -27,9 +27,9 @@ namespace BiluthyrningAB.Data.Migrations
 
                     b.Property<DateTime>("BookingTime");
 
-                    b.Property<int?>("CarId");
+                    b.Property<int>("CarId");
 
-                    b.Property<int?>("CustomerId");
+                    b.Property<int>("CustomerId");
 
                     b.Property<bool>("IsActive");
 
@@ -71,6 +71,12 @@ namespace BiluthyrningAB.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("FirstName")
+                        .IsRequired();
+
+                    b.Property<string>("LastName")
+                        .IsRequired();
 
                     b.Property<string>("SocialSecurityNumber")
                         .IsRequired();
@@ -248,12 +254,14 @@ namespace BiluthyrningAB.Data.Migrations
             modelBuilder.Entity("BiluthyrningAB.Models.Booking", b =>
                 {
                     b.HasOne("BiluthyrningAB.Models.Car", "Car")
-                        .WithMany()
-                        .HasForeignKey("CarId");
+                        .WithMany("Bookings")
+                        .HasForeignKey("CarId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("BiluthyrningAB.Models.Customer", "Customer")
                         .WithMany("Bookings")
-                        .HasForeignKey("CustomerId");
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

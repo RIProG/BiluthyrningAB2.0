@@ -18,7 +18,7 @@ namespace BiluthyrningAB.Models
 
         [RegularExpression(@"^[A-Z]{3}[0-9]{3}$", ErrorMessage = "Ange ett korrekt registreringsnummer (ex. ABC123)")]
         [Display(Name = "Registreringsnummer")]
-        [Required]
+        [Required(ErrorMessage = "Du måste ange ett registreringsnummer på bilen.")]
         public string RegNr { get; set; }
 
         [Display(Name = "Körda kilometer")]
