@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace BiluthyrningAB.Data.Migrations
+namespace BiluthyrningAB.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20190402112813_changedCarModel")]
-    partial class changedCarModel
+    [Migration("20190402195704_Restart")]
+    partial class Restart
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -29,9 +29,9 @@ namespace BiluthyrningAB.Data.Migrations
 
                     b.Property<DateTime>("BookingTime");
 
-                    b.Property<int?>("CarId");
+                    b.Property<int>("CarId");
 
-                    b.Property<int?>("CustomerId");
+                    b.Property<int>("CustomerId");
 
                     b.Property<bool>("IsActive");
 
@@ -54,9 +54,11 @@ namespace BiluthyrningAB.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<bool>("Available");
+
                     b.Property<int>("CarSize");
 
-                    b.Property<double>("DistanceInKm");
+                    b.Property<decimal>("DistanceInKm");
 
                     b.Property<string>("RegNr")
                         .IsRequired();
@@ -248,12 +250,14 @@ namespace BiluthyrningAB.Data.Migrations
             modelBuilder.Entity("BiluthyrningAB.Models.Booking", b =>
                 {
                     b.HasOne("BiluthyrningAB.Models.Car", "Car")
-                        .WithMany()
-                        .HasForeignKey("CarId");
+                        .WithMany("Bookings")
+                        .HasForeignKey("CarId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("BiluthyrningAB.Models.Customer", "Customer")
                         .WithMany("Bookings")
-                        .HasForeignKey("CustomerId");
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

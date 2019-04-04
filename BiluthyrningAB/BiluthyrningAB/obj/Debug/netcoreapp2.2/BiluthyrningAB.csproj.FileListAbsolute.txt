@@ -78,3 +78,4 @@ C:\Projects\BiluthyrningAB 2.0\BiluthyrningAB\BiluthyrningAB\obj\Debug\netcoreap
 C:\Projects\BiluthyrningAB 2.0\BiluthyrningAB\BiluthyrningAB\obj\Debug\netcoreapp2.2\Razor\Views\Shared\_DeleteAndBackToListButton.g.cshtml.cs
 C:\Projects\BiluthyrningAB 2.0\BiluthyrningAB\BiluthyrningAB\obj\Debug\netcoreapp2.2\Razor\Areas\Admin\Views\Car\Details.g.cshtml.cs
 C:\Projects\BiluthyrningAB 2.0\BiluthyrningAB\BiluthyrningAB\obj\Debug\netcoreapp2.2\Razor\Views\Shared\_DetailsAndBackToListButton.g.cshtml.cs
+C:\Projects\BiluthyrningAB 2.0\BiluthyrningAB\BiluthyrningAB\obj\Debug\netcoreapp2.2\Razor\Areas\Admin\Views\Booking\Create.g.cshtml.cs
