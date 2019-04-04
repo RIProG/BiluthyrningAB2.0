@@ -1,0 +1,52 @@
+﻿@model IEnumerable<BiluthyrningAB.Models.Booking>
+
+<br /><br />
+
+<div class="border backgroundWhite">
+    <div class="row">
+        <div class="col-6">
+            <h2 class="text-info"> Aktuella bokningar</h2>
+        </div>
+    </div>
+    <br />
+    <div>
+        @if (Model.Count() > 0)
+        {
+            <table class="table table-striped border">
+                <tr class="table-secondary">
+                    <th>
+                        @Html.DisplayNameFor(m => m.Car.RegNr)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(m => m.BookingTime)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(m => m.Customer.FirstName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(m => m.Customer.LastName)
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(m => item.Car.RegNr)</td>
+                        <td>@Html.DisplayFor(m => item.BookingTime)</td>
+                        <td>@Html.DisplayFor(m => item.Customer.FirstName)</td>
+                        <td>@Html.DisplayFor(m => item.Customer.LastName)</td>
+                        <td>
+                            <partial name="_TableButtonPartial" model="item.Id" />
+                        </td>
+                    </tr>
+                }
+            </table>
+        }
+        else
+        {
+            <p> Det finns inga bokningar i databasen...</p>
+        }
+    </div>
+</div>
+
