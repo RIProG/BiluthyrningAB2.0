@@ -26,11 +26,13 @@ namespace BiluthyrningAB.Persistence.Repositories
         public void UpdateCar(Car car)
         {
             _context.Update(car);
+            _context.SaveChangesAsync();
         }
 
         public void RemoveCar(Car car)
         {
             _context.Car.Remove(car);
+            _context.SaveChangesAsync();
         }
 
         public IEnumerable<Car> GetAllCars()

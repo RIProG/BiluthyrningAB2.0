@@ -1,0 +1,67 @@
+﻿@model IEnumerable<BiluthyrningAB.Models.Booking>
+
+@{
+    ViewData["Title"] = "CustomerBookings";
+}
+
+@{int count = 1;}
+
+<br /><br />
+
+<div class="border backgroundWhite">
+    <div class="row">
+        <div class="col-6">
+            <h2 class="text-info"> Bokningar för @Model.Select(c => c.Customer.FirstName + " " + c.Customer.LastName).First()</h2>
+        </div>
+    </div>
+    <br />
+    <div>
+        @if (Model.Count() > 0)
+        {
+            <table class="table table-striped border">
+                <tr class="table-secondary">
+                    <th>
+                        @Html.DisplayNameFor(m => m.Id)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(m => m.BookingTime)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(m => m.IsActive)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(m => m.Price)
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@count @{count++;}</td>
+                        <td>@item.BookingTime.ToShortDateString()</td>
+                        <td>@Html.DisplayFor(modelItem => item.IsActive)</td>
+                        <td>
+                            <partial name="_TableButtonPartial" model="item.Id" />
+                        </td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <a asp-action="FinishBooking" asp-route-id="@item.Id" class="btn btn-success">Avsluta</a>
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(modelItem => item.Price)
+                            }
+                        </td>
+                    </tr>
+                }
+            </table>
+        }
+        else
+        {
+            <p> Det finns inga bokningar registrerade på denna kund.</p>
+        }
+    </div>
+</div>
+

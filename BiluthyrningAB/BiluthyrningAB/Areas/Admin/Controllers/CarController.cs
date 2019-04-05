@@ -16,12 +16,10 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
     public class CarController : Controller
     {
         private readonly ICarRepository _carRepository;
-        private readonly IEntityFrameworkRepository _entityFrameworkRepository;
 
-        public CarController(ICarRepository carRepository, IEntityFrameworkRepository entityFrameworkRepository)
+        public CarController(ICarRepository carRepository)
         {
             _carRepository = carRepository;
-            _entityFrameworkRepository = entityFrameworkRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -32,14 +30,14 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
 
         public async Task<IActionResult> CarsAvailable()
         {
-            var myTask = Task.Run(() => _carRepository.GetCarsDependingOnBookingStatus(false));
+            var myTask = Task.Run(() => _carRepository.GetCarsDependingOnBookingStatus(true));
             return View(await myTask);
         }
 
 
         public async Task<IActionResult> CarsBooked()
         {
-            var myTask = Task.Run(() => _carRepository.GetCarsDependingOnBookingStatus(true));
+            var myTask = Task.Run(() => _carRepository.GetCarsDependingOnBookingStatus(false));
             return View(await myTask);
         }
 
@@ -72,7 +70,6 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
                 car.Id = Guid.NewGuid();
                 _carRepository.AddCar(car);
 
-                //_entityFrameworkRepository.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(car);
@@ -100,7 +97,7 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
         }
 
         //POST - EDIT
-        [HttpPost]
+        [HttpPost,ActionName("Edit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("Id,RegNr,CarSize,DistanceInKm")] Car car)
         {
@@ -112,7 +109,6 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
                 try
                 {
                     _carRepository.UpdateCar(car);
-                    _entityFrameworkRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -157,7 +153,6 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
         {
             var car = _carRepository.GetCarById(id);
             _carRepository.RemoveCar(car);
-            _entityFrameworkRepository.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

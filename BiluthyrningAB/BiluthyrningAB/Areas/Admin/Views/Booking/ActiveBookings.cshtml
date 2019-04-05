@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<BiluthyrningAB.Models.Booking>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "ActiveBookings";
 }
 
 <br /><br />
@@ -9,10 +9,7 @@
 <div class="border backgroundWhite">
     <div class="row">
         <div class="col-6">
-            <h2 class="text-info"> Alla bokningar</h2>
-        </div>
-        <div class="col-6 text-right">
-            <partial name="_CreateButtonPartial" />
+            <h2 class="text-info"> Aktuella bokningar</h2>
         </div>
     </div>
     <br />
@@ -38,15 +35,18 @@
                 </tr>
                 @foreach (var item in Model)
                 {
-                    <tr>
-                        <td>@Html.DisplayFor(m => item.Car.RegNr)</td>
-                        <td>@Html.DisplayFor(m => item.BookingTime)</td>
-                        <td>@Html.DisplayFor(m => item.Customer.FirstName)</td>
-                        <td>@Html.DisplayFor(m => item.Customer.LastName)</td>
-                        <td>
-                            <partial name="_TableButtonPartial" model="item.Id" />
-                        </td>
-                    </tr>
+                    @if (item.IsActive)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(m => item.Car.RegNr)</td>
+                            <td>@Html.DisplayFor(m => item.BookingTime)</td>
+                            <td>@Html.DisplayFor(m => item.Customer.FirstName)</td>
+                            <td>@Html.DisplayFor(m => item.Customer.LastName)</td>
+                            <td>
+                                <partial name="_TableButtonPartial" model="item.Id" />
+                            </td>
+                        </tr>
+                    }
                 }
             </table>
         }

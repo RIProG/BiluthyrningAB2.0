@@ -9,7 +9,6 @@ namespace BiluthyrningAB.Models
 {
     public class Car
     {
-        //[Key]
         public Guid Id { get; set; }
 
         [Display(Name = "Bilstorlek")]

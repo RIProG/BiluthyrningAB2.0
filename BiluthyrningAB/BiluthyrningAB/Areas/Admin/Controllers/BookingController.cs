@@ -18,16 +18,14 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
         private readonly IBookingRepository _bookingRepository;
         private readonly ICarRepository _carRepository;
         private readonly ICustomerRepository _customerRepository;
-        private readonly IEntityFrameworkRepository _entityFrameworkRepository;
 
 
 
-        public BookingController(IBookingRepository bookingRepository, ICarRepository carRepository, IEntityFrameworkRepository entityFrameworkRepository, ICustomerRepository customerRepository)
+        public BookingController(IBookingRepository bookingRepository, ICarRepository carRepository, ICustomerRepository customerRepository)
         {
             _bookingRepository = bookingRepository;
             _carRepository = carRepository;
             _customerRepository = customerRepository;
-            _entityFrameworkRepository = entityFrameworkRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -35,9 +33,9 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
             var myTask = Task.Run(() => _bookingRepository.GetAllBookings());
             return View(await myTask);
         }
-        public async Task<IActionResult> BookingsForCertainCustomer(Guid? CustomerId)
+        public async Task<IActionResult> CustomerBookings(Guid? Id)
         {
-            var myTask = Task.Run(() => _bookingRepository.GetBookingsForCertainCustomer(CustomerId));
+            var myTask = Task.Run(() => _bookingRepository.GetCustomerBookings(Id));
             return View(await myTask);
         }
 
@@ -101,20 +99,20 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
 
         [HttpPost, ActionName("Create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreatePOST([Bind("BookingId,CustomerId,CarId,StartDate")] Booking booking)
+        public async Task<IActionResult> CreatePOST([Bind("Id,CustomerId,CarId,StartDate")] Booking booking)
         {
             booking.BookingTime = booking.BookingTime.AddDays(1);
             booking.IsActive = true;
 
             booking.Car = _carRepository.GetCarById(booking.CarId);
 
-            if (booking.Car.Available == false)
+            if (booking.Car.Available == true)
             {
-                booking.Car.Available = true;
+                booking.Car.Available = false;
             }
             else
             {
-                ViewBag.Message = "Bilen är redan bokad, vänligen välj en annan";
+                ViewBag.Message = "Bilen är tyvärr redan bokad.";
                 BookingViewModel error_bookingVm = new BookingViewModel();
                 error_bookingVm.Car = FillCarListOfSelectListItems();
                 error_bookingVm.Customer = FillCustomerListOfSelectListItems();
@@ -128,7 +126,6 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
 
                 _carRepository.UpdateCar(booking.Car);
 
-                _entityFrameworkRepository.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
 

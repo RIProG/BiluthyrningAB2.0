@@ -14,12 +14,10 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
     public class CustomerController : Controller
     {
         private readonly ICustomerRepository _customerRepository;
-        private readonly IEntityFrameworkRepository _entityFrameworkRepository;
 
-        public CustomerController(ICustomerRepository customerRepository, IEntityFrameworkRepository entityFrameworkRepository)
+        public CustomerController(ICustomerRepository customerRepository)
         {
             _customerRepository = customerRepository;
-            _entityFrameworkRepository = entityFrameworkRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -42,7 +40,6 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
                 customer.Id = Guid.NewGuid();
                 _customerRepository.AddCustomer(customer);
 
-                _entityFrameworkRepository.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(customer);
@@ -75,7 +72,6 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
                 {
                     _customerRepository.UpdateCustomer(customer);
 
-                    _entityFrameworkRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -113,7 +109,6 @@ namespace BiluthyrningAB.Areas.Admin.Controllers
             var customer = _customerRepository.GetCustomerById(id);
             _customerRepository.RemoveCustomer(customer);
 
-            _entityFrameworkRepository.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

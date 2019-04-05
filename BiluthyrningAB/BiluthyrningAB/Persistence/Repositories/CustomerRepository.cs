@@ -20,6 +20,7 @@ namespace BiluthyrningAB.Persistence.Repositories
         public void AddCustomer(Customer customer)
         {
             _context.Add(customer);
+            _context.SaveChangesAsync();
         }
 
         public bool CustomerExists(Guid id)
@@ -40,11 +41,13 @@ namespace BiluthyrningAB.Persistence.Repositories
         public void RemoveCustomer(Customer customer)
         {
             _context.Customer.Remove(customer);
+            _context.SaveChangesAsync();
         }
 
         public void UpdateCustomer(Customer customer)
         {
             _context.Update(customer);
+            _context.SaveChangesAsync();
         }
     }
 }

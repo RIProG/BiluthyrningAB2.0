@@ -6,26 +6,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace BiluthyrningAB.Models
 {
     public class Booking
     {
-        //[Key]
         public Guid Id { get; set; }
 
-        [Required]
         [Display(Name = "Kund")]
         public Guid CustomerId { get; set; }
+        public Customer Customer { get; set; }
 
-        //[ForeignKey("CustomerId")]
-        public virtual Customer Customer { get; set; }
-
-        [Required]
         [Display(Name = "Bil")]
         public Guid CarId { get; set; }
-
-        //[ForeignKey("CarId")]
-        public virtual Car Car { get; set; }
+        public Car Car { get; set; }
 
         [Required]
         [Display(Name = "Bokningens Starttid")]

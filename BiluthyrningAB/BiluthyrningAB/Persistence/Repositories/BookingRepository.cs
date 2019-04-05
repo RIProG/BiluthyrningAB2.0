@@ -24,9 +24,9 @@ namespace BiluthyrningAB.Persistence.Repositories
             return _context.Booking.Include(x => x.Car).ToList();
         }
 
-        public IEnumerable<Booking> GetBookingsForCertainCustomer(Guid? CustomerId)
+        public IEnumerable<Booking> GetCustomerBookings(Guid? Id)
         {
-            return _context.Booking.Include(x => x.Car).Include(x => x.Customer).Where(x => x.Customer.Id == CustomerId).ToList();
+            return _context.Booking.Include(x => x.Car).Include(x => x.Customer).Where(x => x.Customer.Id == Id).ToList();
         }
 
         public IEnumerable<Booking> GetBookingsDependingOnStatus(bool status)
@@ -48,16 +48,19 @@ namespace BiluthyrningAB.Persistence.Repositories
         public void AddBooking(Booking booking)
         {
             _context.Add(booking);
+            _context.SaveChangesAsync();
         }
 
         public void UpdateBooking(Booking booking)
         {
             _context.Update(booking);
+            _context.SaveChangesAsync();
         }
 
         public void RemoveBooking(Booking booking)
         {
             _context.Booking.Remove(booking);
+            _context.SaveChangesAsync();
         }
 
     }
